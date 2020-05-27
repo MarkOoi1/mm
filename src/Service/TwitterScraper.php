@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Event;
 use App\Service\AbstractScraper;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\DomCrawler\Crawler;
@@ -19,32 +20,22 @@ class TwitterScraper extends AbstractScraper
     private $keywords;
 
     /**
-     * @var tweet
+     * @var tweetList
      */
-    private $tweet;
+    private $tweetList;
 
-    /**
-     * @var tweetName
-     */
-    private $tweetName;
 
-    /**
-     * @var tweetContent
-     */
-    private $tweetContent;
-
-    /**
-     * @var tweetDate
-     */
-    private $tweetDate;
-
-    public function __construct(array $profiles, array $keywords)
+    public function __construct(array $profiles, array $keywords, int $interval)
     {
         $this->profiles = $profiles;
         $this->keywords = $keywords;
+        $this->interval = strtotime("now") * 1000 - $interval;
+        $this->tweetList = [];
+        $this->url = "https://twitter.com/";
     }
 
-    public function getTweets()
+
+    public function getTweetsFromInterval()
     {
         // TODO: Loop through profiles
 
@@ -53,13 +44,39 @@ class TwitterScraper extends AbstractScraper
         $content = $response->getContent();
 
         $crawler = new Crawler($content);
-        $tweet = $crawler->filter('li.stream-item')->each(function (Crawler $node, $i) {
+        $crawler->filter('li.stream-item')->each(function (Crawler $node, $i) {
+
             $tweetName = $node->filter('.fullname')->text();
             $tweetContent = $node->filter('p.tweet-text')->text();
-            $tweetDate = $node->filter('.tweet-timestamp > span')->attr('data-time') * 1000; // Convert seconds to milliseconds
+            $tweetDate = $node->filter('.tweet-timestamp > span')->attr('data-time');
 
+            $tweetDateMilliSeconds = $tweetDate * 1000;
+
+            if ($tweetDateMilliSeconds > $this->interval) {    // Convert seconds to milliseconds
+
+                $tweet = new Event();
+                $tweet->setProfile($tweetName);
+                $tweet->setType("News");
+                $tweet->setDate(new \DateTime('@' . $tweetDate));
+                $tweet->setContent($tweetContent);
+
+                array_push($this->tweetList, $tweet);
+            }
         });
 
-        //dump($tweetName);
+        return $this->tweetList;
+    }
+
+    public function keywordFilter()
+    {
+        if (!is_array($this->tweetList)) return null;
+
+        return array_filter($this->tweetList, function ($val, $key) {
+            foreach ($this->keywords as $keyword) {
+                if (strpos($val->getContent(), $keyword)) {
+                    return $val;
+                }
+            }
+        }, ARRAY_FILTER_USE_BOTH);
     }
 }

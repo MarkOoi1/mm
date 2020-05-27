@@ -3,11 +3,19 @@
 namespace App\Controller;
 
 use App\Entity\Keywords;
+use App\Entity\Event;
+use App\Repository\EventRepository;
 use App\Repository\KeywordsRepository;
 use App\Service\TwitterScraper;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\MakerBundle\EventRegistry;
 use Symfony\Component\Routing\Annotation\Route;
+
+/**
+ * @Route("/events", name="events")
+ */
 
 class EventsController extends AbstractController
 {
@@ -17,13 +25,25 @@ class EventsController extends AbstractController
     private $keywordList;
 
     /**
-     * @Route("/events", name="events")
+     * @var logger
      */
-    public function index(EntityManagerInterface $entityManager)
+    private $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * @Route("/twitter", name="twitter")
+     */
+    public function twitter(EventRepository $eventRep, KeywordsRepository $keywordRep)
     {
 
+        $entityManager = $this->getDoctrine()->getManager();
+
         $profiles = ["ForexLive", "LiveSquawk"];
-        $this->keywordList = $entityManager->getRepository(Keywords::class)->getAllSelNameArr();
+        $this->keywordList = $keywordRep->getKeywordsArray();
 
         foreach ($profiles as $val) {
             $url = "https://twitter.com/" . $val;
@@ -31,11 +51,28 @@ class EventsController extends AbstractController
             $newNewsItems = [];
         }
 
-        $test = new TwitterScraper($profiles, $this->keywordList);
-        dump($test->getTweets());
-        die;
+        $latestTweets = new TwitterScraper($profiles, $this->keywordList, 120000000);
+        $latestTweets->getTweetsFromInterval();
+        $filteredTweets = $latestTweets->keywordFilter();
+
+        if (is_array($filteredTweets)) {
+            foreach ($filteredTweets as $val) {
+                $dbcheck = $eventRep->findOneBy(array("date" => $val->getDate(), "profile" =>  $val->getProfile()));
+
+                if ((bool) $dbcheck) {
+                    $this->logger->info("item already saved.");
+                } else {
+                    $entityManager->persist($val);
+                    $this->logger->info("saved item");
+                }
+            }
+
+            $entityManager->flush();
+
+            return $this->json("Events found. Check log for details");
+        }
 
 
-        return $this->json("test");
+        return $this->json("No new Events");
     }
 }

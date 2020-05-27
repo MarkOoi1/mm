@@ -6,12 +6,16 @@ abstract class AbstractScraper
 {
 
     /**
-     * @var test
+     * @var interval
      */
-    protected $test = 1;
+    protected $interval;
+
+    /**
+     * @var url
+     */
+    protected $url;
 
     public function __construct()
     {
-
     }
 }

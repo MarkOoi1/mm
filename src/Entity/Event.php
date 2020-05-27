@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\EventsRepository;
+use App\Repository\EventRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,9 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource
- * @ORM\Entity(repositoryClass=EventsRepository::class)
+ * @ORM\Entity(repositoryClass=EventRepository::class)
  */
-class Events
+class Event
 {
     /**
      * @ORM\Id()
@@ -32,7 +32,7 @@ class Events
     private $profile;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="text")
      */
     private $content;
 
@@ -41,14 +41,9 @@ class Events
      */
     private $date;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Keywords::class)
-     */
-    private $keywords;
 
     public function __construct()
     {
-        $this->keywords = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -100,32 +95,6 @@ class Events
     public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Keywords[]
-     */
-    public function getKeywords(): Collection
-    {
-        return $this->keywords;
-    }
-
-    public function addKeyword(Keywords $keyword): self
-    {
-        if (!$this->keywords->contains($keyword)) {
-            $this->keywords[] = $keyword;
-        }
-
-        return $this;
-    }
-
-    public function removeKeyword(Keywords $keyword): self
-    {
-        if ($this->keywords->contains($keyword)) {
-            $this->keywords->removeElement($keyword);
-        }
 
         return $this;
     }

@@ -19,7 +19,7 @@ class KeywordsRepository extends ServiceEntityRepository
         parent::__construct($registry, Keywords::class);
     }
 
-    public function getAllSelNameArr()
+    public function getKeywordsArray()
     {
         $resArr = [];
 
