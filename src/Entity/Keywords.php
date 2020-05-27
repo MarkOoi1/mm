@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\KeywordsRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -24,6 +26,17 @@ class Keywords
      */
     private $keyword;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Regions::class, inversedBy="keywords")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $region;
+
+
+    public function __construct()
+    {
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -37,6 +50,18 @@ class Keywords
     public function setKeyword(string $keyword): self
     {
         $this->keyword = $keyword;
+
+        return $this;
+    }
+
+    public function getRegion(): ?Regions
+    {
+        return $this->region;
+    }
+
+    public function setRegion(?Regions $region): self
+    {
+        $this->region = $region;
 
         return $this;
     }

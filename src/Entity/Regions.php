@@ -31,9 +31,16 @@ class Regions
      */
     private $markets;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Keywords::class, mappedBy="region")
+     */
+    private $keywords;
+
+
     public function __construct()
     {
         $this->markets = new ArrayCollection();
+        $this->keywords = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -76,6 +83,37 @@ class Regions
         if ($this->markets->contains($market)) {
             $this->markets->removeElement($market);
             $market->removeMarket($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Keywords[]
+     */
+    public function getKeywords(): Collection
+    {
+        return $this->keywords;
+    }
+
+    public function addKeyword(Keywords $keyword): self
+    {
+        if (!$this->keywords->contains($keyword)) {
+            $this->keywords[] = $keyword;
+            $keyword->setRegion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeKeyword(Keywords $keyword): self
+    {
+        if ($this->keywords->contains($keyword)) {
+            $this->keywords->removeElement($keyword);
+            // set the owning side to null (unless already changed)
+            if ($keyword->getRegion() === $this) {
+                $keyword->setRegion(null);
+            }
         }
 
         return $this;

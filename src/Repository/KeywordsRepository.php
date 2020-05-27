@@ -19,22 +19,20 @@ class KeywordsRepository extends ServiceEntityRepository
         parent::__construct($registry, Keywords::class);
     }
 
-    // /**
-    //  * @return Keywords[] Returns an array of Keywords objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getAllSelNameArr()
     {
-        return $this->createQueryBuilder('k')
-            ->andWhere('k.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('k.id', 'ASC')
-            ->setMaxResults(10)
+        $resArr = [];
+
+        $res = $this->createQueryBuilder('k')
+            ->select('k.keyword')
             ->getQuery()
-            ->getResult()
-        ;
+            ->execute();
+
+        foreach ($res as $val) {
+            array_push($resArr, $val['keyword']);
+        }
+        return $resArr;
     }
-    */
 
     /*
     public function findOneBySomeField($value): ?Keywords
