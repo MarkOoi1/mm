@@ -37,7 +37,7 @@ class TwitterScraper extends AbstractScraper
 
     public function getTweetsFromInterval()
     {
-        // TODO: Loop through profiles
+        // TODO: Loop through profiles. Retrieve profiles from DB.
 
         $client = HttpClient::create();
         $response = $client->request('GET', 'https://twitter.com/ForexLive');
@@ -72,8 +72,10 @@ class TwitterScraper extends AbstractScraper
         if (!is_array($this->tweetList)) return null;
 
         return array_filter($this->tweetList, function ($val, $key) {
+
             foreach ($this->keywords as $keyword) {
-                if (strpos($val->getContent(), $keyword)) {
+
+                if (strpos($val->getContent(), $keyword) !== false) {
                     return $val;
                 }
             }
