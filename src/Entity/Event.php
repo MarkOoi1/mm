@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource(attributes={"order"={"date"}})
+ * @ApiResource(attributes={"order"={"date":"DESC"}})
  * @ORM\Entity(repositoryClass=EventRepository::class)
  */
 class Event
