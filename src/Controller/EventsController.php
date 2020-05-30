@@ -43,7 +43,6 @@ class EventsController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
 
         $profiles = ["ForexLive", "LiveSquawk"];
-        $this->keywordList = $keywordRep->getKeywordsArray();
 
         foreach ($profiles as $val) {
             $url = "https://twitter.com/" . $val;
@@ -51,7 +50,7 @@ class EventsController extends AbstractController
             $newNewsItems = [];
         }
 
-        $latestTweets = new TwitterScraper($profiles, $this->keywordList, 360000000);
+        $latestTweets = new TwitterScraper($profiles, $keywordRep, 360000000);
         $latestTweets->getTweetsFromInterval();
 
         $filteredTweets = $latestTweets->keywordFilter();

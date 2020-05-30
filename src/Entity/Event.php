@@ -41,9 +41,16 @@ class Event
      */
     private $date;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=Keywords::class)
+     */
+    private $keywords;
+
+
 
     public function __construct()
     {
+        $this->keywords = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -95,6 +102,32 @@ class Event
     public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Keywords[]
+     */
+    public function getKeywords(): Collection
+    {
+        return $this->keywords;
+    }
+
+    public function addKeyword(Keywords $keyword): self
+    {
+        if (!$this->keywords->contains($keyword)) {
+            $this->keywords[] = $keyword;
+        }
+
+        return $this;
+    }
+
+    public function removeKeyword(Keywords $keyword): self
+    {
+        if ($this->keywords->contains($keyword)) {
+            $this->keywords->removeElement($keyword);
+        }
 
         return $this;
     }
