@@ -53,6 +53,7 @@ class EventsController extends AbstractController
         $latestTweets = new TwitterScraper($profiles, $keywordRep, 360000000);
         $latestTweets->getTweetsFromInterval();
 
+
         $filteredTweets = $latestTweets->keywordFilter();
 
         if (is_array($filteredTweets)) {

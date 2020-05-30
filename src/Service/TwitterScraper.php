@@ -43,35 +43,37 @@ class TwitterScraper extends AbstractScraper
 
     public function getTweetsFromInterval()
     {
-        // TODO: Loop through profiles. Retrieve profiles from DB.
+        if (!is_array($this->profiles)) return null;
 
-        $client = HttpClient::create();
-        $response = $client->request('GET', 'https://twitter.com/ForexLive');
-        $content = $response->getContent();
+        foreach ($this->profiles as $val) {
+            $client = HttpClient::create();
+            $response = $client->request('GET', 'https://twitter.com/' . $val);
+            $content = $response->getContent();
 
-        $crawler = new Crawler($content);
-        $crawler->filter('li.stream-item')->each(function (Crawler $node, $i) {
+            $crawler = new Crawler($content);
+            $crawler->filter('li.stream-item')->each(function (Crawler $node, $i) {
 
-            $tweetName = $node->filter('.fullname')->text();
-            $tweetContent = $node->filter('p.tweet-text')->text();
-            $tweetDate = $node->filter('.tweet-timestamp > span')->attr('data-time');
+                $tweetName = $node->filter('.fullname')->text();
+                $tweetContent = $node->filter('p.tweet-text')->text();
+                $tweetDate = $node->filter('.tweet-timestamp > span')->attr('data-time');
 
 
-            $tweetDateMilliSeconds = $tweetDate * 1000;
+                $tweetDateMilliSeconds = $tweetDate * 1000;
 
-            if ($tweetDateMilliSeconds > $this->interval) {    // Convert seconds to milliseconds
+                if ($tweetDateMilliSeconds > $this->interval) {    // Convert seconds to milliseconds
 
-                $date = new \DateTime();
+                    $date = new \DateTime();
 
-                $tweet = new Event();
-                $tweet->setProfile($tweetName);
-                $tweet->setType("News");
-                $tweet->setDate($date->setTimestamp($tweetDate));
-                $tweet->setContent($tweetContent);
+                    $tweet = new Event();
+                    $tweet->setProfile($tweetName);
+                    $tweet->setType("News");
+                    $tweet->setDate($date->setTimestamp($tweetDate));
+                    $tweet->setContent($tweetContent);
 
-                array_push($this->tweetList, $tweet);
-            }
-        });
+                    array_push($this->tweetList, $tweet);
+                }
+            });
+        }
 
         return $this->tweetList;
     }
