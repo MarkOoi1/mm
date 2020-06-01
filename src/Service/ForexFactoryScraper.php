@@ -3,19 +3,12 @@
 namespace App\Service;
 
 use App\Entity\Event;
-use App\Repository\EventRepository;
 use App\Repository\KeywordsRepository;
 use App\Service\AbstractScraper;
-use Doctrine\ORM\EntityRepository;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Component\DomCrawler\Crawler;
 
 class ForexFactoryScraper extends AbstractScraper
 {
-    /**
-     * @var countries
-     */
-    private $countries;
 
     /**
      * @var calList
@@ -23,16 +16,11 @@ class ForexFactoryScraper extends AbstractScraper
     private $calList;
 
     /**
-     * @var keywordList
-     */
-    private $keywordList;
-
-    /**
      * @var keywordRep
      */
     private $keywordRep;
 
-    public function __construct(EventRepository $eventRep, KeywordsRepository $keywordRep)
+    public function __construct(KeywordsRepository $keywordRep)
     {
         $this->calList = [];
         $this->keywordRep = $keywordRep;
@@ -43,8 +31,6 @@ class ForexFactoryScraper extends AbstractScraper
         $client = HttpClient::create();
         $response = $client->request('GET', 'https://cdn-nfs.faireconomy.media/ff_calendar_thisweek.json');
         $content = $response->toArray();
-
-
 
         foreach ($content as $val) {
             $calEvent = new Event();
@@ -57,10 +43,10 @@ class ForexFactoryScraper extends AbstractScraper
 
             $keyword = $this->keywordRep->findOneBy(["keyword" => $val['country']]);
 
-            if ($keyword) $calEvent->addKeyword($keyword);
-
-
-            array_push($this->calList, $calEvent);
+            if ($keyword) {
+                $calEvent->addKeyword($keyword);
+                array_push($this->calList, $calEvent);
+            }
         }
 
 

@@ -42,7 +42,7 @@ class EventsController extends AbstractController
     {
         $entityManager = $this->getDoctrine()->getManager();
 
-        $latestCalEvents = new ForexFactoryScraper($eventRep, $keywordRep);
+        $latestCalEvents = new ForexFactoryScraper($keywordRep);
         $calList = $latestCalEvents->getWeeklyCal();
 
         if (is_array($calList)) {
