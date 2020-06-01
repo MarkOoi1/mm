@@ -6,6 +6,7 @@ use App\Entity\Keywords;
 use App\Entity\Event;
 use App\Repository\EventRepository;
 use App\Repository\KeywordsRepository;
+use App\Service\ForexFactoryScraper;
 use App\Service\TwitterScraper;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -32,6 +33,36 @@ class EventsController extends AbstractController
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
+    }
+
+    /**
+     * @Route("/ff", name="forexfactory")
+     */
+    public function forexfactory(EventRepository $eventRep, KeywordsRepository $keywordRep)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $latestCalEvents = new ForexFactoryScraper($eventRep, $keywordRep);
+        $calList = $latestCalEvents->getWeeklyCal();
+
+        if (is_array($calList)) {
+            foreach ($calList as $val) {
+                $dbcheck = $eventRep->findOneBy(array("date" => $val->getDate(), "profile" =>  $val->getProfile()));
+
+                if ((bool) $dbcheck) {
+                    $this->logger->info("item already saved.");
+                } else {
+                    $entityManager->persist($val);
+                    $this->logger->info("saved item");
+                }
+            }
+
+            $entityManager->flush();
+
+            return $this->json("Events found. Check log for details");
+        }
+
+        return $this->json("No new Events");
     }
 
     /**

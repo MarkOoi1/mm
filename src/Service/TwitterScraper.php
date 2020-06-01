@@ -37,7 +37,6 @@ class TwitterScraper extends AbstractScraper
         $this->keywordsRepository = $keywordsRepository;
         $this->interval = strtotime("now") * 1000 - $interval;
         $this->tweetList = [];
-        $this->url = "https://twitter.com/";
     }
 
 
