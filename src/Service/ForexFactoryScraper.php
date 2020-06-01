@@ -53,7 +53,7 @@ class ForexFactoryScraper extends AbstractScraper
             $calEvent->setProfile($val['country']);
             $calEvent->setType("Economy");
             $calEvent->setDate($date);
-            $calEvent->setContent($val['title'] . ". Impact: " . $val['impact'] . ", forecast: " . $val['forecast'] . ", " . $val['previous']);
+            $calEvent->setContent($val['title'] . ". Impact: " . $val['impact'] . ", exp: " . $val['forecast'] . ", prev: " . $val['previous']);
 
             $keyword = $this->keywordRep->findOneBy(["keyword" => $val['country']]);
 
