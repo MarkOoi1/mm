@@ -34,8 +34,8 @@ class ForexFactoryScraper extends AbstractScraper
 
         foreach ($content as $val) {
             $calEvent = new Event();
-            $date = new \DateTime($val['date']);
 
+            $date = new \DateTime($val['date']);
             $calEvent->setProfile($val['country']);
             $calEvent->setType("Economy");
             $calEvent->setDate($date);
@@ -48,7 +48,6 @@ class ForexFactoryScraper extends AbstractScraper
                 array_push($this->calList, $calEvent);
             }
         }
-
 
         return $this->calList;
     }

@@ -2,11 +2,17 @@
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Type;
 use App\Repository\EventRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+
+use DoctrineExtensions\DBAL\Types\UTCDateTimeType;
+
+Type::overrideType('datetime', UTCDateTimeType::class);
+
 
 /**
  * @ApiResource(attributes={"order"={"date":"DESC"}})
@@ -37,7 +43,7 @@ class Event
     private $content;
 
     /**
-     * @ORM\Column(type="datetimetz")
+     * @ORM\Column(type="datetime")
      */
     private $date;
 
@@ -45,6 +51,11 @@ class Event
      * @ORM\ManyToMany(targetEntity=Keywords::class)
      */
     private $keywords;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $date_timezone;
 
 
 
@@ -102,6 +113,7 @@ class Event
     public function setDate(\DateTimeInterface $date): self
     {
         $this->date = $date;
+        $this->date_timezone = $date->getTimezone()->getName();
 
         return $this;
     }
@@ -130,5 +142,10 @@ class Event
         }
 
         return $this;
+    }
+
+    public function getDateTimezone(): ?string
+    {
+        return $this->date_timezone;
     }
 }
