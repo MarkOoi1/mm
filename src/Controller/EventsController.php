@@ -40,6 +40,7 @@ class EventsController extends AbstractController
      */
     public function forexfactory(EventRepository $eventRep, KeywordsRepository $keywordRep)
     {
+
         $entityManager = $this->getDoctrine()->getManager();
 
         $latestCalEvents = new ForexFactoryScraper($keywordRep);
